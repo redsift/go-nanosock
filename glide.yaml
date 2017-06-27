@@ -1,0 +1,5 @@
+package: github.com/redsift/go-nanosock
+import:
+- package: github.com/redsift/go-socket
+- package: github.com/op/go-nanomsg
+  version: 48d7bb6353dec050b3020e54028984eea4d350d1
