@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/op/go-nanomsg"
-	"github.com/redsift/hilt/socket"
+	"github.com/redsift/go-socket"
 )
 
 // ensure we implement interfaces correctly
