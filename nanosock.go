@@ -50,10 +50,12 @@ func (s *NanoSock) SetResendInterval(timeout time.Duration) error {
 func (s *NanoSock) Send(data []byte) error {
 	// deepak: go -> cgo bridge doesn't like go pointers and go seems to optimize string vars.
 	// We copy the byte array to avoid any go pointer issues in cgo land.
-	// TODO: Limit length of byte array
-	dst := make([]byte, len(data), len(data))
-	copy(dst, data)
-	_, err := s.sock.Send(dst, 0)
+	if len(data) < 65 {
+		dst := make([]byte, len(data), len(data))
+		copy(dst, data)
+		data = dst
+	}
+	_, err := s.sock.Send(data, 0)
 	return err
 }
 
