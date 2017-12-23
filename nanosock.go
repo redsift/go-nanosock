@@ -50,6 +50,7 @@ func (s *NanoSock) SetResendInterval(timeout time.Duration) error {
 func (s *NanoSock) Send(data []byte) error {
 	// deepak: go -> cgo bridge doesn't like go pointers and go seems to optimize string vars.
 	// We copy the byte array to avoid any go pointer issues in cgo land.
+	// fix "panic: runtime error: cgo argument has Go pointer to Go pointer" (github.com/op/go-nanomsg/nanomsg.go:144)
 	if len(data) < 65 {
 		dst := make([]byte, len(data), len(data))
 		copy(dst, data)
