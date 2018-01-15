@@ -1,5 +1,5 @@
 //
-// hilt/nanosock/nanosock.go
+// socket.go
 //
 //
 // Copyright (c) 2016 Redsift Limited. All rights reserved.
@@ -8,46 +8,47 @@
 package nanosock
 
 import (
-	"sync"
 	"time"
 
 	"github.com/op/go-nanomsg"
-	"github.com/redsift/go-socket"
+	"github.com/redsift/go-mangosock/nano"
 )
 
 // ensure we implement interfaces correctly
 var (
-	_ socket.Socket = &NanoSock{}
+	_ nano.Socket = &s{}
 )
 
-type NanoSock struct {
-	sync.Mutex
+type s struct {
 	sock *nanomsg.Socket
+	addr string
 }
 
-func (s *NanoSock) Bind(addr string) error {
+func (s *s) Bind(addr string) error {
+	s.addr = addr
 	_, err := s.sock.Bind(addr)
 	return err
 }
 
-func (s *NanoSock) Connect(addr string) error {
+func (s *s) Connect(addr string) error {
+	s.addr = addr
 	_, err := s.sock.Connect(addr)
 	return err
 }
 
-func (s *NanoSock) SetSendTimeout(timeout time.Duration) error {
+func (s *s) SetSendTimeout(timeout time.Duration) error {
 	return s.sock.SetSendTimeout(timeout)
 }
 
-func (s *NanoSock) SetRecvTimeout(timeout time.Duration) error {
+func (s *s) SetRecvTimeout(timeout time.Duration) error {
 	return s.sock.SetRecvTimeout(timeout)
 }
 
-func (s *NanoSock) SetResendInterval(timeout time.Duration) error {
-	return nil
+func (s *s) SetRecvMaxSize(size int64) error {
+	return s.sock.SetRecvMaxSize(size)
 }
 
-func (s *NanoSock) Send(data []byte) error {
+func (s *s) Send(data []byte) (int, error) {
 	// deepak: go -> cgo bridge doesn't like go pointers and go seems to optimize string vars.
 	// We copy the byte array to avoid any go pointer issues in cgo land.
 	// fix "panic: runtime error: cgo argument has Go pointer to Go pointer" (github.com/op/go-nanomsg/nanomsg.go:144)
@@ -56,14 +57,13 @@ func (s *NanoSock) Send(data []byte) error {
 		copy(dst, data)
 		data = dst
 	}
-	_, err := s.sock.Send(data, 0)
-	return err
+	return s.sock.Send(data, 0)
 }
 
-func (s *NanoSock) Recv() ([]byte, error) {
+func (s *s) Recv() ([]byte, error) {
 	return s.sock.Recv(0)
 }
 
-func (s *NanoSock) Close() error {
+func (s *s) Close() error {
 	return s.sock.Close()
 }
