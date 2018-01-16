@@ -1,0 +1,5 @@
+# go-nanosock
+
+[[constraint]]
+  name = "github.com/op/go-nanomsg"
+  revision = "48d7bb6353dec050b3020e54028984eea4d350d1"
